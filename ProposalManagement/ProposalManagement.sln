@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProposalManagement.Domain",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProposalManagement.Infrastructure", "ProposalManagement.Infrastructure\ProposalManagement.Infrastructure.csproj", "{D1371BC9-3A8B-4114-A4DF-DE21646B4F6A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProposalManagement.Application", "ProposalManagement.Application\ProposalManagement.Application.csproj", "{70B3DFC3-8BA5-41EB-9D9F-EC11B7D891F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{D1371BC9-3A8B-4114-A4DF-DE21646B4F6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1371BC9-3A8B-4114-A4DF-DE21646B4F6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1371BC9-3A8B-4114-A4DF-DE21646B4F6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70B3DFC3-8BA5-41EB-9D9F-EC11B7D891F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70B3DFC3-8BA5-41EB-9D9F-EC11B7D891F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70B3DFC3-8BA5-41EB-9D9F-EC11B7D891F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70B3DFC3-8BA5-41EB-9D9F-EC11B7D891F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

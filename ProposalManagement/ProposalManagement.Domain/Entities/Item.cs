@@ -1,4 +1,5 @@
 ﻿using ProposalManagement.Domain.Core.Entities;
+using ProposalManagement.Domain.Enums;
 
 namespace ProposalManagement.Domain.Entities;
 
@@ -10,11 +11,4 @@ public class Item : Entity , IEntity
     public Guid PartyId { get; set; }
     public Party Party { get; set; } = null!;
     
-}
-
-public enum ItemStatus
-{
-    Private = 1,
-    Shared = 2,
-    Retired = 3
 }

@@ -1,13 +1,7 @@
 
 
 Insert into ItemStatus (ItemStatusId,Name)
-select 1, 'Private'
-
-Insert into ItemStatus (ItemStatusId,Name)
-Select 2, 'Shared'
-
-Insert into ItemStatus (ItemStatusId,Name)
-Select 3,'Retired'
+values (1, 'Private') ,(2, 'Shared') , (3,'Retired')
 
 Insert into Party (PartyId,Name)
 Select NEWID(), 'Party 1'
@@ -63,5 +57,18 @@ values (@userId, 'FirstName 4','LastName 4 Party 4',@partyId)
 insert into Item (ItemId, ItemStatusId, Name, PartyId,CreatedById , CreatedDate)
 values (NEWID(), 2,'Item 5', @partyId, @userId, GETUTCDATE())
 
+insert into ProposalType (ProposalTypeId, Name)
+values (1, 'Initial'),
+(2, 'Counter')
+
+insert into ProposalStatus (ProposalStatusId, Name)
+values (1, 'New'),
+ (2, 'Approved'),
+ (3, 'Rejected')
+
+
+insert into ProposalAllocationType (ProposalAllocationTypeId, Name)
+values (1, 'Percentage'), 
+(2,'Amount')
 
 
