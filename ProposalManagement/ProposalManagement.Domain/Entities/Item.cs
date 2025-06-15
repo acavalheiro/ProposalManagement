@@ -5,7 +5,7 @@ namespace ProposalManagement.Domain.Entities;
 
 public class Item : Entity , IEntity
 {
-    public int ItemId { get; set; }
+    public Guid ItemId { get; set; }
     public string Name { get; set; }
     public ItemStatus ItemStatusId { get; set; }
     public Guid PartyId { get; set; }

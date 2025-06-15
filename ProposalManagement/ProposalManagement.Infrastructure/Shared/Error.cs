@@ -37,8 +37,8 @@ public record Error
 
 public static class Errors
 {
-    public static Error NotFound(string id) =>
-        Error.NotFound("Error.NotFound", $"Configuration with Id: {id} not found");
+    public static Error NotFound(string entity, string id) =>
+        Error.NotFound("Error.NotFound", $"{entity} with Id: {id} not found");
 
 
     public static Error CreateFailure => 

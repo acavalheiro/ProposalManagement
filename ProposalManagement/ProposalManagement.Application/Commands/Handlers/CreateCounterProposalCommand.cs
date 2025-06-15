@@ -9,53 +9,61 @@ using ProposalManagement.Infrastructure.Shared;
 
 namespace ProposalManagement.Application.Commands.Handlers;
 
-public class CreateProposalCommandHandler : IRequestHandler<CreateProposalCommand, Result<Guid>>
+public class CreateCounterProposalCommandHandler : IRequestHandler<CreateCounterProposalCommand, Result<Guid>>
 {
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly ILogger<CreateProposalCommandHandler> _logger;
     private readonly CreateProposalValidator _createProposalValidator;
 
-    public CreateProposalCommandHandler(ApplicationDbContext applicationDbContext, ILogger<CreateProposalCommandHandler> logger, CreateProposalValidator createProposalValidator)
+    public CreateCounterProposalCommandHandler(ApplicationDbContext applicationDbContext,
+        ILogger<CreateProposalCommandHandler> logger, CreateProposalValidator createProposalValidator)
     {
         _applicationDbContext = applicationDbContext;
         _logger = logger;
         _createProposalValidator = createProposalValidator;
     }
 
-    public async Task<Result<Guid>> Handle(CreateProposalCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(CreateCounterProposalCommand request, CancellationToken cancellationToken)
     {
+        var result = await _createProposalValidator.ValidateCounterProposalAsync(request, cancellationToken);
+
+        if (!result.IsSuccess)
+            return result.Error!;
+
+        
+
+        var transaction = await _applicationDbContext.Database.BeginTransactionAsync(cancellationToken);
         try
         {
-            var result = await _createProposalValidator.ValidateCreateAsync(request,cancellationToken);
-
-            if (!result.IsSuccess)
-                return result.Error!;
+            var proposal = await _applicationDbContext.Proposals
+                .FirstAsync(p => p.ProposalId == request.ParentProposalId, cancellationToken);
             
-
-            var proposal = new Proposal
+            proposal.UpdateStatus(ProposalStatus.Abandoned, request.AuthenticatedUserId);
+            
+            
+            var parentProposal = new Proposal
             {
                 ItemId = request.ItemId,
                 Information = request.Information,
                 ProposalAllocationTypeid = request.AllocationType,
+                ParentProposalId = request.ParentProposalId,
+                ProposalTypeId = ProposalType.Counter,
+
                 CreatedById = request.AuthenticatedUserId,
-                
-                
             };
 
             await _applicationDbContext.Proposals.AddAsync(proposal, cancellationToken);
             await _applicationDbContext.SaveChangesAsync(cancellationToken);
+            
+            await transaction.CommitAsync(cancellationToken);
 
             return proposal.ProposalId;
-
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occurred while creating a proposal.");
+            await transaction.RollbackAsync(cancellationToken);
+            _logger.LogError(e.Message);
             return Errors.CreateException(e.ToString());
         }
-        
-        
     }
-    
-    
 }

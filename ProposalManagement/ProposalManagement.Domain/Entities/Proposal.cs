@@ -16,5 +16,14 @@ public class Proposal : Entity , IEntity
     public ProposalAllocationType ProposalAllocationTypeid { get; set; }
     public ProposalStatus ProposalStatusId { get; set; } = ProposalStatus.New;
     public ProposalType ProposalTypeId { get; set; } = ProposalType.Initial;
+    
+    
+    public void UpdateStatus(ProposalStatus proposalStatus, Guid userId)
+    {
+        ProposalStatusId = proposalStatus;
+        ModifiedDate = DateTime.UtcNow;
+        ModifiedById = userId;
+    }
+    
 
 }

@@ -7,12 +7,12 @@ public abstract class Entity : IEntity
 {
     public Entity()
     {
-        CreatedDate = DateOnly.FromDateTime(DateTime.UtcNow);
+        CreatedDate = DateTime.UtcNow;
     }
     public Guid CreatedById { get; set; }
-    public DateOnly CreatedDate { get; set; }
+    public DateTime CreatedDate { get; set; }
     public Guid? ModifiedById { get; set; }
-    public DateOnly? ModifiedDate { get; set; }
+    public DateTime? ModifiedDate { get; set; }
     
     public User CreatedBy { get; set; } = null!;
     public User? ModifiedBy { get; set; }
@@ -21,7 +21,7 @@ public abstract class Entity : IEntity
 public interface IEntity
 {
     public Guid CreatedById { get; set; }
-    public DateOnly CreatedDate { get; set; }
+    public DateTime CreatedDate { get; set; }
     public Guid? ModifiedById { get; set; }
-    public DateOnly? ModifiedDate { get; set; }
+    public DateTime? ModifiedDate { get; set; }
 }

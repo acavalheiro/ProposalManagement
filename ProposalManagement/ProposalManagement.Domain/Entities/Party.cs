@@ -2,7 +2,7 @@
 
 public class Party
 {
-    public int PartyId { get; set; }
+    public Guid PartyId { get; set; }
     public string Name { get; set; }
     
     public ICollection<User> Users { get; } = new List<User>(); 

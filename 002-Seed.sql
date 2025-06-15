@@ -64,7 +64,9 @@ values (1, 'Initial'),
 insert into ProposalStatus (ProposalStatusId, Name)
 values (1, 'New'),
  (2, 'Approved'),
- (3, 'Rejected')
+ (3, 'Rejected'),
+ (4, 'Abandoned')
+
 
 
 insert into ProposalAllocationType (ProposalAllocationTypeId, Name)
