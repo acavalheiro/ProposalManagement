@@ -5,6 +5,10 @@ namespace ProposalManagement.Domain.Core.Entities;
 
 public abstract class Entity : IEntity
 {
+    public Entity()
+    {
+        CreatedDate = DateOnly.FromDateTime(DateTime.UtcNow);
+    }
     public Guid CreatedById { get; set; }
     public DateOnly CreatedDate { get; set; }
     public Guid? ModifiedById { get; set; }

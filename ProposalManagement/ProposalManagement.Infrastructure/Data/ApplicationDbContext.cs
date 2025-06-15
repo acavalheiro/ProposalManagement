@@ -8,6 +8,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<User> Users { get; set; }
     public DbSet<Party> Parties { get; set; }
     public DbSet<Item> Items { get; set; }
+    
+    public DbSet<Proposal> Proposals { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

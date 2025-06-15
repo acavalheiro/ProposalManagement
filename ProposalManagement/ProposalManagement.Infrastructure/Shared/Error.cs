@@ -30,4 +30,22 @@ public record Error
     public static Error Validation(string code, string description) =>
         new(code, description, ErrorType.Validation);
     
+    public static Error Exception(string code, string description) =>
+        new(code, description, ErrorType.Exception);
+    
+}
+
+public static class Errors
+{
+    public static Error NotFound(string id) =>
+        Error.NotFound("Error.NotFound", $"Configuration with Id: {id} not found");
+
+
+    public static Error CreateFailure => 
+        Error.Failure("Error.Failure", $"Something went wrong in creating configuration");
+    
+    public static Error CreateException (string exceptionMessage) => 
+        Error.Exception("Error.Exception", $"Something went wrong ${exceptionMessage}");
+
+
 }
