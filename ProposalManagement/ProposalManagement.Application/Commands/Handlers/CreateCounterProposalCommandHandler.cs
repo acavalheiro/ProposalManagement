@@ -41,18 +41,17 @@ public class CreateCounterProposalCommandHandler : IRequestHandler<CreateCounter
             proposal.UpdateStatus(ProposalStatus.Abandoned, request.AuthenticatedUserId);
             
             
-            var parentProposal = new Proposal
+            var counterProposal = new Proposal
             {
-                ItemId = request.ItemId,
+                ItemId = proposal.ItemId,
                 Information = request.Information,
                 ProposalAllocationTypeid = request.AllocationType,
                 ParentProposalId = request.ParentProposalId,
                 ProposalTypeId = ProposalType.Counter,
-
                 CreatedById = request.AuthenticatedUserId,
             };
 
-            await _applicationDbContext.Proposals.AddAsync(proposal, cancellationToken);
+            await _applicationDbContext.Proposals.AddAsync(counterProposal, cancellationToken);
             await _applicationDbContext.SaveChangesAsync(cancellationToken);
             
             await transaction.CommitAsync(cancellationToken);

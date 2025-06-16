@@ -18,26 +18,29 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Party> Parties { get; set; }
     public virtual DbSet<Item> Items { get; set; }
     
-    public DbSet<Proposal> Proposals { get; set; }
+    public virtual DbSet<Proposal> Proposals { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>().ToTable("User");
+        modelBuilder.Entity<User>().ToTable("User")
+            .HasOne(e => e.Party)
+            .WithMany(e => e.Users)
+            .HasForeignKey("PartyId");
         
-        modelBuilder.Entity<Item>().ToTable("Item");
+        modelBuilder.Entity<Item>()
+            .ToTable("Item")
+            .HasMany(e => e.Parties)
+            .WithMany(e => e.Items)
+            .UsingEntity(
+                "ItemParty",
+                r => r.HasOne(typeof(Party)).WithMany().HasForeignKey("PartyId").HasPrincipalKey(nameof(Party.PartyId)),
+                l => l.HasOne(typeof(Item)).WithMany().HasForeignKey("ItemId").HasPrincipalKey(nameof(Item.ItemId)),
+                j => j.HasKey("ItemId", "PartyId"));;
         
-        modelBuilder.Entity<Party>().ToTable("Party");
         modelBuilder.Entity<Party>()
-            .HasMany(e => e.Users)
-            .WithOne(e => e.Party)
-            .HasForeignKey(e => e.UserId)
-            .IsRequired();
+            .ToTable("Party");
+
         
-        modelBuilder.Entity<Party>()
-            .HasMany(e => e.Items)
-            .WithOne(e => e.Party)
-            .HasForeignKey(e => e.PartyId)
-            .IsRequired();
         
         modelBuilder.Entity<Proposal>().ToTable("Proposal");
     }

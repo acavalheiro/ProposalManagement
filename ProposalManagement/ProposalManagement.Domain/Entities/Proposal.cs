@@ -5,7 +5,10 @@ namespace ProposalManagement.Domain.Entities;
 
 public class Proposal : Entity , IEntity
 {
-    
+    public Proposal()
+    {
+        ProposalId = Guid.NewGuid();
+    }
     public Guid ProposalId { get; set; }
     public Guid? ParentProposalId { get; set; }
     public Proposal ParentProposal { get; set; }

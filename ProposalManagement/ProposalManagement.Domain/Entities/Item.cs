@@ -8,7 +8,8 @@ public class Item : Entity , IEntity
     public Guid ItemId { get; set; }
     public string Name { get; set; }
     public ItemStatus ItemStatusId { get; set; }
-    public Guid PartyId { get; set; }
-    public Party Party { get; set; } = null!;
-    
+    public List<Party> Parties { get; } = [];
+
+    public List<Proposal> Proposals { get; } = [];
+
 }

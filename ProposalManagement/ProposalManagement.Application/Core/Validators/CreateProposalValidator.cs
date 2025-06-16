@@ -46,10 +46,11 @@ public class CreateProposalValidator
     {
         try
         {
-            var result = await ValidateAsync(request, cancellationToken);
-            
-            if (!result.IsSuccess)
-                return result;
+            var userResult = await ValidateAuthenticatedUser(request.AuthenticatedUserId, cancellationToken);
+            if (!userResult.IsSuccess)
+                return userResult;
+               
+            var user = userResult.Value;
             
             if (string.IsNullOrEmpty(request.Information))
                 return Error.Validation("InformationRequired", "Information is required for the counter proposal.");
@@ -59,6 +60,13 @@ public class CreateProposalValidator
             
             if (parentProposal == null)
                 return Errors.NotFound("Proposal",request.ParentProposalId.ToString());
+            
+            if(parentProposal.ProposalStatusId is   ProposalStatus.Abandoned or ProposalStatus.Approved or ProposalStatus.Rejected)
+                return Error.Validation("InvalidParentProposalStatus", "The parent proposal cannot be countered.");
+            
+            var sharedFieldsResult = await ValidateSharedFields(request.AllocationType, request.AllocationQuantity, cancellationToken);
+            if (!sharedFieldsResult.IsSuccess)
+                return sharedFieldsResult;
             
             if (parentProposal.CreatedById == request.AuthenticatedUserId)
                 return Error.Validation("CannotCounterOwnProposal", "You cannot create a counter proposal for your own proposal.");
@@ -76,24 +84,22 @@ public class CreateProposalValidator
     {
         try
         {
-            var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.UserId ==request.AuthenticatedUserId, cancellationToken);
-            if (user == null)
-                return Errors.NotFound(nameof(User),request.AuthenticatedUserId.ToString());
+            var userResult = await ValidateAuthenticatedUser(request.AuthenticatedUserId, cancellationToken);
+            if (!userResult.IsSuccess)
+                return userResult;
+               
+            var user = userResult.Value;
         
-            var item = await _applicationDbContext.Items.FirstOrDefaultAsync(i => i.ItemId == request.ItemId, cancellationToken);
+            var item = await _applicationDbContext.Items.Include(item => item.Parties).FirstOrDefaultAsync(i => i.ItemId == request.ItemId, cancellationToken);
             if (item == null)
                 return Errors.NotFound(nameof(Item),request.ItemId.ToString());
         
-            if (item.PartyId != user.PartyId)
+            if (item.Parties.All(ip => ip.PartyId != user.PartyId))
                 return Error.Validation("ItemNotBelongToParty", "The item does not belong to the party of the authenticated user.");
-        
             
-        
-            if (request.AllocationQuantity < 1)
-                return Error.Validation("InvalidAllocationQuantity", "Allocation quantity must be greater than 0.");
-        
-            if (request is { AllocationType: ProposalAllocationType.Percentage, AllocationQuantity: > 100 })
-                return Error.Validation("InvalidAllocationPercentage", "Allocation percentage must be between 0 and 100.");
+            var sharedFieldsResult = await ValidateSharedFields(request.AllocationType, request.AllocationQuantity, cancellationToken);
+            if (!sharedFieldsResult.IsSuccess)
+                return sharedFieldsResult;
             
             return Result.Success();
         }
@@ -102,5 +108,25 @@ public class CreateProposalValidator
             _logger.LogError(e, "An error occurred while validating the proposal creation request.");
             return Errors.CreateException(e.ToString());
         }
+    }
+
+    private async Task<Result<User>> ValidateAuthenticatedUser(Guid userId, CancellationToken cancellationToken)
+    {
+        var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.UserId ==userId, cancellationToken);
+        if (user == null)
+            return Errors.NotFound(nameof(User),userId.ToString());
+
+        return user;
+    }
+
+    private Task<Result> ValidateSharedFields(ProposalAllocationType proposalAllocationType, int allocationQuantity, CancellationToken cancellationToken)
+    {
+        if (proposalAllocationType == ProposalAllocationType.Amount && allocationQuantity <= 0 )
+            return Task.FromResult<Result>(Error.Validation("InvalidAllocationQuantity", "Allocation quantity must be greater than 0."));
+        
+        if (proposalAllocationType ==   ProposalAllocationType.Percentage && (allocationQuantity > 100 || allocationQuantity <0 ))
+            return Task.FromResult<Result>(Error.Validation("InvalidAllocationPercentage", "Allocation percentage must be between 0 and 100."));
+            
+        return Task.FromResult(Result.Success());
     }
 }

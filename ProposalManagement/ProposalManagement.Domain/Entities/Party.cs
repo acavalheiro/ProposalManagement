@@ -6,5 +6,6 @@ public class Party
     public string Name { get; set; }
     
     public ICollection<User> Users { get; } = new List<User>(); 
-    public ICollection<Item> Items { get; } = new List<Item>(); 
+    
+    public List<Item> Items { get; } = [];
 }
