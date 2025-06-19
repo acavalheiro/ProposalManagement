@@ -79,7 +79,7 @@ Once the application is running, you can access:
 - `PUT /api/Proposal/{id}/Approve` - Approve proposal
 - `PUT /api/Proposal/{id}/Reject` - Reject proposal
 
-  ### 5. Consideration
+### Consideration
   -Authenticated Users, to "emulate" an authenticated user, every request has the property "authenticatedUserId" Guid.
 
 
