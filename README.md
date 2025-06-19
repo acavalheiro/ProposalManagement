@@ -4,7 +4,7 @@ Simple Proof of Concept of using Clena Architecture.
 
 ## 🛠️ Technologies Used
 
-- **.NET Core/9+** - Backend framework
+- **.NET Core/8+** - Backend framework
 - **Entity Framework Core** - ORM for database operations
 - **SQL Server** - Primary database
 - **ASP.NET Core Web API** - RESTful API framework
