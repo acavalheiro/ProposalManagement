@@ -13,9 +13,9 @@ public class CreateProposalCommandHandler : IRequestHandler<CreateProposalComman
 {
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly ILogger<CreateProposalCommandHandler> _logger;
-    private readonly CreateProposalValidator _createProposalValidator;
+    private readonly ICreateProposalValidator _createProposalValidator;
 
-    public CreateProposalCommandHandler(ApplicationDbContext applicationDbContext, ILogger<CreateProposalCommandHandler> logger, CreateProposalValidator createProposalValidator)
+    public CreateProposalCommandHandler(ApplicationDbContext applicationDbContext, ILogger<CreateProposalCommandHandler> logger, ICreateProposalValidator createProposalValidator)
     {
         _applicationDbContext = applicationDbContext;
         _logger = logger;

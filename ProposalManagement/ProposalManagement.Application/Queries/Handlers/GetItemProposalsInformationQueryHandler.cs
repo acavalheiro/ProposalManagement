@@ -39,6 +39,7 @@ public class GetItemProposalsInformationQueryHandler : IRequestHandler<GetItemPr
                 .Include(u => u.CreatedBy)
                 .ThenInclude(u => u.Party)
                 .Include(u => u.ModifiedBy)
+                .ThenInclude(u => u.Party)
                 .Where(p => p.ItemId == request.ItemId)
                 .ToListAsync(cancellationToken);
 

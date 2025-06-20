@@ -2,21 +2,21 @@
 using Microsoft.Extensions.Logging;
 using ProposalManagement.Application.Commands;
 using ProposalManagement.Application.Commands.Handlers;
+using ProposalManagement.Application.Core.Validators;
 using ProposalManagement.Domain.Entities;
 using ProposalManagement.Domain.Enums;
 using ProposalManagement.Infrastructure.Data;
 using ProposalManagement.Infrastructure.Shared;
 
-namespace ProposalManagement.Application.Core.Validators;
+namespace ProposalManagement.Application.Validators;
 
-public class CreateProposalValidator
+public class CreateProposalValidator :  BaseValidator,  ICreateProposalValidator
 {
-    private readonly ApplicationDbContext _applicationDbContext;
     private readonly ILogger<CreateProposalCommandHandler> _logger;
 
-    public CreateProposalValidator(ApplicationDbContext applicationDbContext, ILogger<CreateProposalCommandHandler> logger)
+    public CreateProposalValidator(ApplicationDbContext applicationDbContext, ILogger<CreateProposalCommandHandler> logger) : base(applicationDbContext,logger)
     {
-        _applicationDbContext = applicationDbContext;
+
         _logger = logger;
     }
     
@@ -29,7 +29,7 @@ public class CreateProposalValidator
             if (!result.IsSuccess)
                 return result;
             
-            if (_applicationDbContext.Proposals.Any(p => p.ItemId == request.ItemId))
+            if (this.ApplicationDbContext.Proposals.Any(p => p.ItemId == request.ItemId))
                 return Error.Validation("ProposalAlreadyExists", "A proposal for this item already exists.");
             
             return Result.Success();
@@ -49,13 +49,11 @@ public class CreateProposalValidator
             var userResult = await ValidateAuthenticatedUser(request.AuthenticatedUserId, cancellationToken);
             if (!userResult.IsSuccess)
                 return userResult;
-               
-            var user = userResult.Value;
             
             if (string.IsNullOrEmpty(request.Information))
                 return Error.Validation("InformationRequired", "Information is required for the counter proposal.");
             
-            var parentProposal = await _applicationDbContext.Proposals
+            var parentProposal = await this.ApplicationDbContext.Proposals
                 .FirstOrDefaultAsync(p => p.ProposalId == request.ParentProposalId, cancellationToken);
             
             if (parentProposal == null)
@@ -64,7 +62,7 @@ public class CreateProposalValidator
             if(parentProposal.ProposalStatusId is   ProposalStatus.Abandoned or ProposalStatus.Approved or ProposalStatus.Rejected)
                 return Error.Validation("InvalidParentProposalStatus", "The parent proposal cannot be countered.");
             
-            var sharedFieldsResult = await ValidateSharedFields(request.AllocationType, request.AllocationQuantity, cancellationToken);
+            var sharedFieldsResult = await ValidateSharedFields(request.AllocationType, request.AllocationQuantity);
             if (!sharedFieldsResult.IsSuccess)
                 return sharedFieldsResult;
             
@@ -90,14 +88,14 @@ public class CreateProposalValidator
                
             var user = userResult.Value;
         
-            var item = await _applicationDbContext.Items.Include(item => item.Parties).FirstOrDefaultAsync(i => i.ItemId == request.ItemId, cancellationToken);
+            var item = await this.ApplicationDbContext.Items.Include(item => item.Parties).FirstOrDefaultAsync(i => i.ItemId == request.ItemId, cancellationToken);
             if (item == null)
                 return Errors.NotFound(nameof(Item),request.ItemId.ToString());
         
             if (item.Parties.All(ip => ip.PartyId != user.PartyId))
                 return Error.Validation("ItemNotBelongToParty", "The item does not belong to the party of the authenticated user.");
             
-            var sharedFieldsResult = await ValidateSharedFields(request.AllocationType, request.AllocationQuantity, cancellationToken);
+            var sharedFieldsResult = await ValidateSharedFields(request.AllocationType, request.AllocationQuantity);
             if (!sharedFieldsResult.IsSuccess)
                 return sharedFieldsResult;
             
@@ -109,17 +107,9 @@ public class CreateProposalValidator
             return Errors.CreateException(e.ToString());
         }
     }
+    
 
-    private async Task<Result<User>> ValidateAuthenticatedUser(Guid userId, CancellationToken cancellationToken)
-    {
-        var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.UserId ==userId, cancellationToken);
-        if (user == null)
-            return Errors.NotFound(nameof(User),userId.ToString());
-
-        return user;
-    }
-
-    private Task<Result> ValidateSharedFields(ProposalAllocationType proposalAllocationType, int allocationQuantity, CancellationToken cancellationToken)
+    private Task<Result> ValidateSharedFields(ProposalAllocationType proposalAllocationType, int allocationQuantity)
     {
         if (proposalAllocationType == ProposalAllocationType.Amount && allocationQuantity <= 0 )
             return Task.FromResult<Result>(Error.Validation("InvalidAllocationQuantity", "Allocation quantity must be greater than 0."));

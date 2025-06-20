@@ -13,10 +13,10 @@ public class CreateCounterProposalCommandHandler : IRequestHandler<CreateCounter
 {
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly ILogger<CreateProposalCommandHandler> _logger;
-    private readonly CreateProposalValidator _createProposalValidator;
+    private readonly ICreateProposalValidator _createProposalValidator;
 
     public CreateCounterProposalCommandHandler(ApplicationDbContext applicationDbContext,
-        ILogger<CreateProposalCommandHandler> logger, CreateProposalValidator createProposalValidator)
+        ILogger<CreateProposalCommandHandler> logger, ICreateProposalValidator createProposalValidator)
     {
         _applicationDbContext = applicationDbContext;
         _logger = logger;

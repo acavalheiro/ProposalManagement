@@ -1,13 +1,15 @@
-﻿using MediatR;
+﻿using System.Text.Json.Serialization;
+using MediatR;
 using ProposalManagement.Application.Core;
 using ProposalManagement.Domain.Enums;
 using ProposalManagement.Infrastructure.Shared;
 
 namespace ProposalManagement.Application.Commands;
 
-public class FinalizeProposalCommand : BaseRequest, IRequest<Result<Guid?>>
+public class FinalizeProposalCommand : CreateCounterProposalCommand
 {
+    [JsonIgnore]
     public ProposalStatus Status { get; set; }
     
-    public CreateCounterProposalCommand? CreateCounterProposal { get; set; }
+    
 }

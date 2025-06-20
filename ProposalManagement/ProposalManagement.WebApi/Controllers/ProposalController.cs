@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using ProposalManagement.Application.Commands;
 using ProposalManagement.Application.Queries;
+using ProposalManagement.Domain.Enums;
 
 namespace ProposalManagement.WebApi.Controllers;
 
@@ -78,8 +79,8 @@ public class ProposalController : ControllerBase
         }
     }
     
-    [HttpGet("Test")]
-    public async Task<IActionResult> Test([FromQuery]GetItemProposalsInformationQuery command)
+    [HttpGet("GetByItem")]
+    public async Task<IActionResult> GetByItem([FromQuery]GetItemProposalsInformationQuery command)
     {
         try
         {
@@ -93,6 +94,66 @@ public class ProposalController : ControllerBase
                 detail: e.Message,
                 statusCode: StatusCodes.Status500InternalServerError,
                 title: "An unexpected error occurred during the test."
+            );
+        }
+    }
+    
+    [HttpPut("{id:guid}/Approve")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Approve(Guid id,[FromBody] FinalizeProposalCommand command)
+    {
+        try
+        {
+            command.ParentProposalId = id;
+            command.Status = ProposalStatus.Approved;
+            var result = await _mediator.Send(command);
+
+            if (result.IsSuccess)
+            {
+                return Ok();
+            }
+
+            _logger.LogError("Error creating proposal: {Error}", result.Error);
+            return BadRequest(result.Error);
+
+        }
+        catch (Exception e)
+        {
+            return Problem(
+                detail: e.Message,
+                statusCode: StatusCodes.Status500InternalServerError,
+                title: "An unexpected error occurred while approving the proposal."
+            );
+        }
+    }
+    
+    [HttpPost("{id:guid}/Reject")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Reject(Guid id,[FromBody] FinalizeProposalCommand command)
+    {
+        try
+        {
+            command.ParentProposalId = id;
+            command.Status = ProposalStatus.Rejected;
+            var result = await _mediator.Send(command);
+
+            if (result.IsSuccess)
+            {
+                return CreatedAtAction(nameof(Create), new { id = result.Value }, result.Value);
+            }
+
+            _logger.LogError("Error creating proposal: {Error}", result.Error);
+            return BadRequest(result.Error);
+
+        }
+        catch (Exception e)
+        {
+            return Problem(
+                detail: e.Message,
+                statusCode: StatusCodes.Status500InternalServerError,
+                title: "An unexpected error occurred while reject the proposal."
             );
         }
     }

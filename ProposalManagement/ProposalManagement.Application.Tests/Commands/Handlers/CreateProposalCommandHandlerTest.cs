@@ -11,6 +11,7 @@ using NUnit.Framework;
 using ProposalManagement.Application.Commands;
 using ProposalManagement.Application.Commands.Handlers;
 using ProposalManagement.Application.Core.Validators;
+using ProposalManagement.Application.Validators;
 using ProposalManagement.Domain.Entities;
 using ProposalManagement.Domain.Enums;
 using ProposalManagement.Infrastructure.Data;
